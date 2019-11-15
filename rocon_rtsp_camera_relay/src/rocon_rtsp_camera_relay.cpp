@@ -10,9 +10,10 @@ namespace rocon {
 RoconRtspCameraRelay::RoconRtspCameraRelay(ros::NodeHandle& n) : nh_(n)
 {
   image_transport::ImageTransport it(nh_);    
-  pub_video_ = it.advertise("image", 1);
-  pub_camera_info_ = nh_.advertise<sensor_msgs::CameraInfo>("camera_info", 1);
-  pub_status_ = nh_.advertise<std_msgs::String>("status", 1);
+  pub_video_ = it.advertise("/camera/rgb/image_color", 1000);
+  pub_camera_info_ = nh_.advertise<sensor_msgs::CameraInfo>("camera_info", 1000);
+  pub_status_ = nh_.advertise<std_msgs::String>("status", 1000);
+  frameCnt = 0;
 }
 
 RoconRtspCameraRelay::~RoconRtspCameraRelay()
@@ -42,10 +43,10 @@ void RoconRtspCameraRelay::convertCvToRosImg(const cv::Mat& mat, sensor_msgs::Im
 {
   cv_bridge::CvImage cv_img;
 
-  cv_img.encoding = sensor_msgs::image_encodings::BGR8;
+  // cv_img.encoding = sensor_msgs::image_encodings::BGR8;
   cv_img.image = mat;
   cv_img.toImageMsg(ros_img);
-  ros_img.header.stamp = ros::Time::now();
+  ros_img.header.stamp = frameCnt++;
   ci.header = ros_img.header;
   ci.width = ros_img.width;
   ci.height = ros_img.height;
@@ -64,19 +65,23 @@ void RoconRtspCameraRelay::spin()
   while(ros::ok())
   {
     if(!vcap_.read(mat)) {
-      status_ = "No frame from camera";
-      cv::waitKey();
+      // status_ = "No frame from camera";
+      // cv::waitKey();
+      status_ = "finish";
+      break;
     }
     else {
       status_ = "live";
     }
 
     ros_str.data = status_;
+    pub_status_.publish(ros_str);
+
+    if (status_ == "finish") break;
     
     convertCvToRosImg(mat, ros_img, ci);
     pub_video_.publish(ros_img);
     pub_camera_info_.publish(ci);
-    pub_status_.publish(ros_str);
     cv::waitKey(1);
   }
 }

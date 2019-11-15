@@ -40,6 +40,7 @@ class RoconRtspCameraRelay {
     ros::Publisher pub_camera_info_;
     ros::Publisher pub_status_;
     ros::NodeHandle nh_;
+    int frameCnt;
 };
 }
 
