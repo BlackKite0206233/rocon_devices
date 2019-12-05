@@ -23,7 +23,7 @@ class RoconRtspCameraRelay {
     RoconRtspCameraRelay(ros::NodeHandle& n);
     ~RoconRtspCameraRelay();
 
-    bool init(const std::string video_stream_url);
+    bool init(const std::string video_stream_url, const std::string path);
     bool reset(const std::string video_stream_url);
 
     void spin();
@@ -35,6 +35,7 @@ class RoconRtspCameraRelay {
     cv::VideoCapture                vcap_;
     std::string                     video_stream_address_;
     std::string                     status_;
+    std::string filePath;
 
     image_transport::Publisher pub_video_;
     ros::Publisher pub_camera_info_;

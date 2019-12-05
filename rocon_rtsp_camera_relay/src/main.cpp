@@ -10,13 +10,16 @@ int main (int argc, char** argv)
 {
   ros::init(argc, argv, "rtsp_camera_relay");
   ros::NodeHandle pnh("~");
-  std::string video_stream_url, user, password;
+  std::string video_stream_url, user, password, path;
+  // video_stream_url = argv[2];
+  // path = argv[3];
 
   pnh.getParam("video_stream_url", video_stream_url);
+  pnh.getParam("filePath", path);
 
   rocon::RoconRtspCameraRelay rtsp(pnh);
   ROS_INFO("Rtsp Camera : Initialising..");
-  if(!rtsp.init(video_stream_url))
+  if(!rtsp.init(video_stream_url, path))
   {
     ROS_ERROR("Rtsp Camera : Failed to initialise stream");
     return -1;
